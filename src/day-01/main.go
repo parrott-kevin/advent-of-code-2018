@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -27,7 +26,8 @@ func readLines(path string) ([]int, error) {
 	return lines, scanner.Err()
 }
 
-func partOne() {
+// PartOne solution
+func PartOne() int {
 	lines, err := readLines("./input.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
@@ -36,10 +36,11 @@ func partOne() {
 	for _, v := range lines {
 		result += v
 	}
-	fmt.Println(result)
+	return result
 }
 
-func partTwo() {
+// PartTwo solution
+func PartTwo() int {
 	lines, err := readLines("./input.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
@@ -63,10 +64,10 @@ func partTwo() {
 		}
 	}
 
-	fmt.Println(result)
+	return result
 }
 
 func main() {
-	partOne()
-	partTwo()
+	PartOne()
+	PartTwo()
 }

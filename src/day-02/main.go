@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -28,7 +27,8 @@ type twoThree struct {
 	three int
 }
 
-func partOne() {
+// PartOne solution
+func PartOne() int {
 	lines, err := readLines("./input.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
@@ -61,7 +61,7 @@ func partOne() {
 			result.three++
 		}
 	}
-	fmt.Println(result.two * result.three)
+	return result.two * result.three
 }
 
 func compareLines(lines []string) string {
@@ -85,16 +85,17 @@ func compareLines(lines []string) string {
 	return ""
 }
 
-func partTwo() {
+// PartTwo solution
+func PartTwo() string {
 	lines, err := readLines("./input.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
 	}
 	result := compareLines(lines)
-	fmt.Println(result)
+	return result
 }
 
 func main() {
-	partOne()
-	partTwo()
+	PartOne()
+	PartTwo()
 }
