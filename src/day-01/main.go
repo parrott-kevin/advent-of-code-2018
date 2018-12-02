@@ -39,31 +39,22 @@ func partOne() {
 	fmt.Println(result)
 }
 
-func contains(s []int, e int) bool {
-	for _, v := range s {
-		if v == e {
-			return true
-		}
-	}
-	return false
-}
-
 func partTwo() {
 	lines, err := readLines("./input.txt")
 	if err != nil {
 		log.Fatalf("readLines: %s", err)
 	}
-	freqs := []int{}
+	freqs := make(map[int]int)
 	result := 0
-	freqs = append(freqs, result)
 	done := false
 	i := 0
 	for done != true {
 		result += lines[i]
-		if contains(freqs, result) {
+		_, ok := freqs[result]
+		if ok {
 			done = true
 		} else {
-			freqs = append(freqs, result)
+			freqs[result]++
 			if len(lines)-1 == i {
 				i = 0
 			} else {
