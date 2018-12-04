@@ -10,30 +10,17 @@ import (
 	"strings"
 )
 
-type rectangle struct {
-	id   int
-	xMin int
-	xMax int
-	yMin int
-	yMax int
-}
-
-type grid struct {
-	xMax       int
-	yMax       int
-	rectangles []rectangle
-}
-
-func readLines(path string) (grid, error) {
+func readLines() (map[string][]int, int) {
+	path := "./input.txt"
 	file, err := os.Open(path)
 	if err != nil {
-		return grid{}, err
+		log.Fatalf("open: %s", err)
 	}
 	defer file.Close()
 
-	canvas := grid{}
-	var lines []rectangle
 	scanner := bufio.NewScanner(file)
+	claimed := make(map[string][]int)
+	idMax := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		splitStrings := regexp.MustCompile("#|@|,|:|x").Split(line, -1)
@@ -50,53 +37,31 @@ func readLines(path string) (grid, error) {
 		}
 
 		id := split[0]
+		if id > idMax {
+			idMax = id
+		}
 		xMin := split[1]
 		xMax := xMin + split[3] - 1
 		yMin := split[2]
 		yMax := yMin + split[4] - 1
-		if xMax > canvas.xMax {
-			canvas.xMax = xMax
-		}
-		if yMax > canvas.yMax {
-			canvas.yMax = yMax
-		}
-		r := rectangle{
-			id,
-			xMin,
-			xMax,
-			yMin,
-			yMax,
-		}
-		lines = append(lines, r)
-	}
-	canvas.rectangles = lines
-	return canvas, scanner.Err()
-}
-
-func claimedCanvas(canvas grid) map[string][]int {
-	claimed := make(map[string][]int)
-	for x := 0; x <= canvas.xMax; x++ {
-		for y := 0; y <= canvas.yMax; y++ {
-			for _, r := range canvas.rectangles {
-				if x >= r.xMin && x <= r.xMax && y >= r.yMin && y <= r.yMax {
-					key := strconv.Itoa(x) + "," + strconv.Itoa(y)
-					claimed[key] = append(claimed[key], r.id)
-				}
+		for i := xMin; i <= xMax; i++ {
+			for j := yMin; j <= yMax; j++ {
+				key := strconv.Itoa(i) + "," + strconv.Itoa(j)
+				claimed[key] = append(claimed[key], id)
 			}
 		}
 	}
-	return claimed
+
+	if scanner.Err() != nil {
+		log.Fatalf("scanner: %s", err)
+	}
+
+	return claimed, idMax
 }
 
 // PartOne solution
 func PartOne() int {
-	canvas, err := readLines("./input.txt")
-	if err != nil {
-		log.Fatalf("readLines: %s", err)
-	}
-
-	claimed := claimedCanvas(canvas)
-
+	claimed, _ := readLines()
 	result := 0
 	for _, v := range claimed {
 		if len(v) > 1 {
@@ -108,13 +73,7 @@ func PartOne() int {
 
 // PartTwo solution
 func PartTwo() int {
-	canvas, err := readLines("./input.txt")
-	if err != nil {
-		log.Fatalf("readLines: %s", err)
-	}
-
-	claimed := claimedCanvas(canvas)
-
+	claimed, idMax := readLines()
 	set := make(map[int]struct{})
 	for _, v := range claimed {
 		if len(v) > 1 {
@@ -138,7 +97,7 @@ func PartTwo() int {
 		}
 	}
 	if result == -1 && keys[0] == 1 {
-		result = canvas.rectangles[len(canvas.rectangles)-1].id
+		result = idMax
 	}
 	return result
 }
