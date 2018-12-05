@@ -17,39 +17,6 @@ type Record struct {
 	text string
 }
 
-// By is the type of a "less" function that defines the ordering of its Record arguments
-type By func(r1, r2 *Record) bool
-
-// Sort is a method on the function type, By, that sorts the argument slice according to the function.
-func (by By) Sort(records []Record) {
-	rs := &recordSorter{
-		records,
-		by,
-	}
-	sort.Sort(rs)
-}
-
-// recordSorter joins a By function and a slice of Records to be sorted.
-type recordSorter struct {
-	records []Record
-	by      func(r1, r2 *Record) bool
-}
-
-// Len is part of sort.Interface.
-func (s *recordSorter) Len() int {
-	return len(s.records)
-}
-
-// Swap is part of sort.Interface.
-func (s *recordSorter) Swap(i, j int) {
-	s.records[i], s.records[j] = s.records[j], s.records[i]
-}
-
-// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
-func (s *recordSorter) Less(i, j int) bool {
-	return s.by(&s.records[i], &s.records[j])
-}
-
 func readFile() []Record {
 	path := "./input.txt"
 	file, err := os.Open(path)
@@ -91,11 +58,9 @@ func readFile() []Record {
 		records = append(records, r)
 	}
 
-	id := func(r1, r2 *Record) bool {
-		return r1.id < r2.id
-	}
-
-	By(id).Sort(records)
+	sort.Slice(records, func(i, j int) bool {
+		return records[i].id < records[j].id
+	})
 	return records
 }
 
