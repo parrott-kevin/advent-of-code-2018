@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"sort"
@@ -82,6 +81,7 @@ func readFile() []Record {
 		if err != nil {
 			log.Fatalf("Atoi %s", err)
 		}
+
 		r := Record{
 			dateTime,
 			date,
@@ -124,14 +124,11 @@ type FrequentMinute struct {
 	length int
 }
 
-// PartOne function
-func PartOne() {
+func countSheep() map[int]*SleepTracker {
 	records := readFile()
 	guard := 0
 	sleepCount := 0
 	sleepStart := 0
-
-	highScoreUser := HighScoreUser{0, 0}
 
 	sleepTime := map[int]*SleepTracker{}
 
@@ -148,6 +145,7 @@ func PartOne() {
 		if record.text == "falls asleep" {
 			sleepStart = record.time
 		}
+
 		if record.text == "wakes up" {
 			sleepCount = record.time - sleepStart
 			if item := sleepTime[guard]; item != nil {
@@ -171,6 +169,14 @@ func PartOne() {
 			}
 		}
 	}
+	return sleepTime
+}
+
+// PartOne function
+func PartOne() int {
+	highScoreUser := HighScoreUser{0, 0}
+	sleepTime := countSheep()
+
 	for k, v := range sleepTime {
 		if v.count > highScoreUser.length {
 			highScoreUser = HighScoreUser{k, v.count}
@@ -184,54 +190,12 @@ func PartOne() {
 			highScoreMinute.length = v
 		}
 	}
-	fmt.Println(highScoreUser.id * highScoreMinute.minute)
+	return highScoreUser.id * highScoreMinute.minute
 }
 
 // PartTwo solution
-func PartTwo() {
-	records := readFile()
-	guard := 0
-	sleepCount := 0
-	sleepStart := 0
-
-	sleepTime := map[int]*SleepTracker{}
-
-	for _, record := range records {
-		if strings.Contains(record.text, "Guard") {
-			g, err := strconv.Atoi(record.text[7 : strings.Index(record.text, "begins")-1])
-			guard = g
-			if err != nil {
-				log.Fatalf("Atoi %s", err)
-			}
-			sleepCount = 0
-		}
-
-		if record.text == "falls asleep" {
-			sleepStart = record.time
-		}
-		if record.text == "wakes up" {
-			sleepCount = record.time - sleepStart
-			if item := sleepTime[guard]; item != nil {
-				item.count += sleepCount
-				for i := sleepStart; i < record.time; i++ {
-					item.minutes[i]++
-				}
-			} else {
-				minutes := make(map[int]int)
-				for i := 0; i < 60; i++ {
-					if i >= sleepStart && i < record.time {
-						minutes[i] = 1
-					} else {
-						minutes[i] = 0
-					}
-				}
-				sleepTime[guard] = &SleepTracker{
-					sleepCount,
-					minutes,
-				}
-			}
-		}
-	}
+func PartTwo() int {
+	sleepTime := countSheep()
 
 	fm := FrequentMinute{0, 0, 0}
 	for id, st := range sleepTime {
@@ -242,7 +206,7 @@ func PartTwo() {
 		}
 	}
 
-	fmt.Println(fm.id * fm.minute)
+	return fm.id * fm.minute
 }
 
 func main() {
